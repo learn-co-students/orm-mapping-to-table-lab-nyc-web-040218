@@ -2,28 +2,33 @@ require 'pry'
 
 class Student
 
-  attr_accessor :name, :grade, :id
-  # attr_reader :id
+  attr_accessor :name, :grade
+  attr_reader :id
 
-  def initialize(id:, name:, grade:)
+  def initialize(name, grade, id = nil)
     @name = name
     @grade = grade
     @id = id
   end
 
   def self.create_table
-    DB[:conn].execute ("
+    sql = <<-SQL
       CREATE TABLE students (
       id INTEGER PRIMARY KEY,
       name TEXT,
       grade TEXT
-    )")
+      );
+      SQL
+
+    DB[:conn].execute(sql)
   end
 
   def self.drop_table
-    DB[:conn].execute ("
-      DROP TABLE students
-      ")
+    sql = <<-SQL
+    DROP TABLE students
+    SQL
+    
+    DB[:conn].execute(sql)
   end
 
   def save
@@ -39,11 +44,7 @@ class Student
   end
 
   def self.create(some_hash)
-    new_student = Student.new
-    some_hash.each do |key, value|
-      new_student.send(key, value)
-    end
-
+    new_student = Student.new(some_hash[:name], some_hash[:grade])
     new_student.save
   end
 
